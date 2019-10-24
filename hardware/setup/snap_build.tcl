@@ -66,10 +66,15 @@ open_project $root_dir/viv_project/framework.xpr >> $logfile
 source $root_dir/setup/snap_synth_step.tcl
 
 
-##
-## run implementation in the base flow
 set ::env(IMPL_FLOW) BASE
-source $root_dir/setup/snap_impl_step.tcl
+if { $::env(OCACCEL_LSF_IMPL) == "TRUE" } {
+    puts [format "%-*s%-*s%-*s%-*s"  $widthCol1 "" $widthCol2 "Use LSF to submit multiple implementation runs" $widthCol3 "" $widthCol4 "[clock format [clock seconds] -format {%T %a %b %d %Y}]"]
+    source $root_dir/setup/create_other_strategy_impls.tcl
+} else {
+    ##
+    ## run implementation in the base flow
+    source $root_dir/setup/snap_impl_step.tcl
+}
 
 
 ##
@@ -78,7 +83,7 @@ source $root_dir/setup/snap_bitstream_step.tcl
 
 
 ##
-## writing debug probes
+### writing debug probes
 if { $ila_debug == "TRUE" } {
   set step     write_debug_probes
   set logfile  $logs_dir/${step}.log
