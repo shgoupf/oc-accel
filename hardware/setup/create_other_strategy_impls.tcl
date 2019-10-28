@@ -16,48 +16,47 @@ set root_dir            $::env(SNAP_HARDWARE_ROOT)
 set logs_dir      $::env(LOGS_DIR)
 set fpga_part           $::env(FPGACHIP)
 set timing_lablimit     $::env(TIMING_LABLIMIT)
-#set root_dir           ../ 
-#set logs_dir           ../logs
-#set fpga_part           xcvu3p-ffvc1517-2-e
-#set timing_lablimit     -200
+set lsf_impl_list       $root_dir/setup/$::env(LSF_IMPL_LIST)
 set widthCol1 $::env(WIDTHCOL1)
 set widthCol2 $::env(WIDTHCOL2)
 set widthCol3 $::env(WIDTHCOL3)
 set widthCol4 $::env(WIDTHCOL4)
-#set widthCol1 10 
-#set widthCol2 10 
-#set widthCol3 10 
-#set widthCol4 10 
 
 set logfile  $logs_dir/create_other_strategy_impls.log
 
-set impl_strategies { \
-Performance_Explore \
-Performance_ExplorePostRoutePhysOpt \
-Performance_ExploreWithRemap \
-Performance_WLBlockPlacement \
-Performance_WLBlockPlacementFanoutOpt \
-Performance_EarlyBlockPlacement \
-Performance_NetDelay_high \
-Performance_NetDelay_low \
-Performance_Retiming \
-Performance_ExtraTimingOpt \
-Performance_RefinePlacement \
-Performance_SpreadSLLs \
-Performance_BalanceSLLs \
-Performance_BalanceSLRs \
-Performance_HighUtilSLRs \
-Congestion_SpreadLogic_high \
-Congestion_SpreadLogic_medium \
-Congestion_SpreadLogic_low \
-Congestion_SSI_SpreadLogic_high \
-Congestion_SSI_SpreadLogic_low \
+if {[file exists $lsf_impl_list] == 0} {
+    set impl_strategies { \
+        Performance_Explore \
+        Performance_ExplorePostRoutePhysOpt \
+        Performance_ExploreWithRemap \
+        Performance_WLBlockPlacement \
+        Performance_WLBlockPlacementFanoutOpt \
+        Performance_EarlyBlockPlacement \
+        Performance_NetDelay_high \
+        Performance_NetDelay_low \
+        Performance_Retiming \
+        Performance_ExtraTimingOpt \
+        Performance_RefinePlacement \
+        Performance_SpreadSLLs \
+        Performance_BalanceSLLs \
+        Performance_BalanceSLRs \
+        Performance_HighUtilSLRs \
+        Congestion_SpreadLogic_high \
+        Congestion_SpreadLogic_medium \
+        Congestion_SpreadLogic_low \
+        Congestion_SSI_SpreadLogic_high \
+        Congestion_SSI_SpreadLogic_low \
+    }
+    puts "                        create impl runs from default list" 
+} else {
+    source $lsf_impl_list
+    puts "                        create impl runs from $lsf_impl_list" 
 }
 
 current_run -synthesis [get_runs synth_1]
 #set_property design_mode GateLvl [current_fileset ]
 puts "                        create more impl runs ..."
-set i 1
+set i 0
 set run_list ""
 foreach stg $impl_strategies {
   if {[string equal [get_runs -quiet impl_${i}_${stg}] ""]} {

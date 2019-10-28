@@ -18,12 +18,27 @@
 import os
 import sys
 from os.path import join as pathjoin
+from os.path import isfile as isfile
 from ocaccel_utils import run_and_poll_with_progress
 from ocaccel_utils import msg 
 
 def make_image(log, options = None):
     msg.ok_msg_blue("--------> Make the FPGA image")
     msg.warn_msg("Make image might take quiet a long time to finish, be patient ... ")
+    if os.environ['OCACCEL_LSF_IMPL'] is not None:
+        msg.warn_msg('Multiple LSF runs enabled')
+
+    if os.environ['LSF_IMPL_LIST'] is not None:
+        list_path = pathjoin('hardware', 'setup', os.environ['LSF_IMPL_LIST'])
+
+        if not isfile(list_path):
+            msg.warn_msg('file %s not exist. Please check your env variable LSF_IMPL_LIST settings' % list_path)
+            msg.warn_msg('LSF_IMPL_LIST should be set as the name of a tcl file in hardware/setup/')
+
+        msg.warn_msg('List of strategies can be found in %s' % list_path)
+    else:
+        msg.warn_msg('Use default strategy list in ./hardware/setup/create_other_strategy_impls.tcl')
+
     rc = run_and_poll_with_progress(cmd = "make image", work_dir = ".", log = log, max_log_len = 120, timeout = options.make_timeout)
 
     if rc == 0:
