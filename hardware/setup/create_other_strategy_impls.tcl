@@ -80,8 +80,8 @@ foreach my_run $run_list {
     puts "                        $my_run finished"
 }
 
-set best_run impl_1_Performance_Explore
-set best_wns [get_property STATS.WNS [get_runs impl_1_Performance_Explore]]
+set best_run impl_0_Performance_Explore
+set best_wns [get_property STATS.WNS [get_runs impl_0_Performance_Explore]]
 
 foreach my_run $run_list {
     set wns [get_property STATS.WNS [get_runs $my_run]]

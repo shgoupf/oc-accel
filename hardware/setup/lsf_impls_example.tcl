@@ -6,6 +6,16 @@
 set impl_strategies { \
     Performance_Explore \
     Performance_ExplorePostRoutePhysOpt \
+    Performance_EarlyBlockPlacement  \
+    Performance_NetDelay_high  \
+    Performance_NetDelay_low  \
+    Performance_Retiming  \
+    Performance_ExtraTimingOpt  \
+    Performance_RefinePlacement  \
+    Performance_SpreadSLLs  \
+    Performance_BalanceSLLs  \
+    Performance_BalanceSLRs  \
+    Performance_HighUtilSLRs  \
 }
 
 # list of available strategies as of vivado 2018.3
