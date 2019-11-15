@@ -20,6 +20,7 @@
 #include <iostream>
 #include "JobBase.h"
 #include "WorkerRegex.h"
+#include "ThreadRegex.h"
 
 class JobRegex : public JobBase
 {
@@ -45,6 +46,9 @@ public:
     // Set pointer to worker
     void set_worker (WorkerRegexPtr in_worker);
 
+    // Set pointer to thread the job resides in
+    void set_thread (ThreadRegexPtr in_thread);
+
     // Get pointer to worker
     WorkerRegexPtr get_worker();
 
@@ -60,18 +64,24 @@ public:
     // Get the result
     int result();
 
-    // Cleanup allocated memories
+    // Cleanup smart pointers' references
     virtual void cleanup();
-
-    // Allocate packet buffer and stat buffer
-    int allocate_packet_buffer ();
 
     // Set the job descriptor
     void set_job_desc (CAPIRegexJobDescriptor* in_job_desc);
 
+    // Set the (reused) packet buffer
+    int set_packet_buffer (void* in_pkt_src_base, size_t in_max_alloc_pkt_size);
+
+    // Set the (reused) result buffer
+    int set_result_buffer (void* in_stat_dest_base, size_t in_stat_size);
+
 private:
     // Pointer to worker for adding job descriptors
     WorkerRegexPtr m_worker;
+
+    // Pointer to thread in which the job resides
+    ThreadRegexPtr m_thread;
 
     // The Job descritpor which contains all information for a regex job
     CAPIRegexJobDescriptor* m_job_desc;
@@ -79,25 +89,24 @@ private:
     // Internal functions to handle relation buffers
     //void* capi_regex_pkt_psql_internal (Relation rel,
     int capi_regex_pkt_psql_internal (Relation rel,
-                                        int attr_id,
-                                        int start_blk_id,
-                                        int num_blks,
-                                        void* pkt_src_base,
-                                        size_t* size,
-                                        size_t* size_wo_hw_hdr,
-                                        size_t* num_pkt,
-                                        int64_t* t_pkt_cpy);
+                                      int attr_id,
+                                      int start_tup_id,
+                                      int num_tups,
+                                      void* pkt_src_base,
+                                      size_t* size,
+                                      size_t* size_wo_hw_hdr,
+                                      size_t* num_pkt,
+                                      int64_t* t_pkt_cpy);
+
+    // Internal functions to handle results
+    int capi_regex_result_harvest (CAPIRegexJobDescriptor* job_desc);
+
+    // Helper function to write results
+    int get_results (void* result, size_t num_matched_pkt, void* stat_dest_base, void* result_len);
 
     // Handle the packet preparation
     int capi_regex_pkt_psql (CAPIRegexJobDescriptor* job_desc,
                              Relation rel, int attr_id);
-
-    // Aligned variant of palloc0
-    void* aligned_palloc0 (size_t in_size);
-
-    // An array to hold all allocated pointers,
-    // need this array to remember which pionter needs to be freed.
-    std::vector<void*> m_allocated_ptrs;
 
 };
 

@@ -33,6 +33,7 @@
 #define ACTION_CONTROL_STAT_EN         2       
 #define ACTION_CONTROL_FLUSH           3       
 
+#define ACTION_HW_VERSION              0x14
 #define ACTION_PKT_INIT_ADDR_L         0x40
 #define ACTION_PKT_INIT_ADDR_H         0x44
 #define ACTION_PATT_INIT_ADDR_L        0x48

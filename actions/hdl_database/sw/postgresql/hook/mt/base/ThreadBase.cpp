@@ -94,13 +94,11 @@ void ThreadBase::work()
 
     m_current_job_idx = 0;
 
-    //while (true) {
     while (m_current_job_idx < (int) m_jobs.size()) {
-        //if (m_current_job_idx < (int) m_jobs.size()) {
         JobPtr job = m_jobs[m_current_job_idx];
+
         work_with_job (job);
         m_current_job_idx++;
-        //}
 
         boost::this_thread::interruption_point();
     }

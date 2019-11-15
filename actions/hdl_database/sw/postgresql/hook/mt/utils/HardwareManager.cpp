@@ -59,18 +59,18 @@ int HardwareManager::init()
     m_attach_flags = m_context->attach_flags;
 
     // This is a global register, make ID to -1
-    uint32_t hw_version = action_read (m_context->dn, SNAP_ACTION_VERS_REG, -1);
+    uint32_t hw_version = action_read (m_context->dn, ACTION_HW_VERSION, -1);
 
     int num_patt_pipes = (int) ((hw_version & 0xFF000000) >> 24);
     int num_pkt_pipes = (int) ((hw_version & 0x00FF0000) >> 16);
     int num_engines = (int) ((hw_version & 0x0000FF00) >> 8);
     int revision = (int) (hw_version & 0x000000FF);
 
-    elog (INFO, "Running with %d %dx%d regex engine(s), revision: %d", num_engines, num_pkt_pipes, num_patt_pipes, revision);
+    elog (DEBUG1, "Running with %d %dx%d regex engine(s), revision: %d", num_engines, num_pkt_pipes, num_patt_pipes, revision);
 
     // TODO: workaround for old hardware which don't have configuration information in version register
     if (0 == num_engines) {
-        elog (INFO, "Warning! Number of engines == 0, old hardware? Workaround number of engines to 1");
+        elog (DEBUG1, "Warning! Number of engines == 0, old hardware? Workaround number of engines to 1");
         m_num_engines = 1;
     } else {
         m_num_engines = num_engines;
@@ -101,7 +101,7 @@ void HardwareManager::cleanup()
         pfree (m_context);
     }
 
-    elog (INFO, "Deattach the card.");
+    elog (DEBUG1, "Deattach the card.");
 }
 
 int HardwareManager::wait_interrupt()
@@ -125,7 +125,7 @@ void HardwareManager::reset_engine (int in_eng_id)
     soft_reset (m_capi_card, in_eng_id);
 }
 
-int HardwareManager::get_num_engines ()
+int HardwareManager::get_num_engines()
 {
     return m_num_engines;
 }

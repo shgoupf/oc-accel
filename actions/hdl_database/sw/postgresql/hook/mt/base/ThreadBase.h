@@ -80,7 +80,7 @@ public:
     static boost::mutex m_global_mutex;
 
     // Cleanup necessary resources
-    virtual void cleanup () = 0;
+    virtual void cleanup() = 0;
 
 protected:
     // The queue to hold all jobs of this thread

@@ -61,7 +61,7 @@ MT_INCLUDES := -I. -I../ -I./mt -I./mt/base -I./mt/utils -I$(SNAP_ROOT)/software
 MT_INCLUDES += -I./mt/regex -I./mt/interface
 MT_INCLUDES += -I../common/
 MT_INCLUDES += -I$(POSTGRESQL_INCLUDE_SERVER) -I$(POSTGRESQL_INCLUDE)/internal
-MT_COMPILEFLAGS := -W -Wall -Wno-multichar -Wno-unused-parameter -Wno-unused-function -Werror-implicit-function-declaration
+MT_COMPILEFLAGS := -W -Wall -Wno-multichar -Wno-unused-parameter -Wno-unused-function
 MT_OPTFLAGS := -O3
 CPPFLAGS += $(MT_INCLUDES)
 

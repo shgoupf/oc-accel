@@ -67,7 +67,7 @@ public:
     void logging (boost::format & in_fmt);
 
     // Cleanup necessary resources
-    virtual void cleanup () = 0;
+    virtual void cleanup() = 0;
 
 protected:
     // The ID of this job itself
