@@ -19,7 +19,7 @@
 
 #include "unistd.h"
 #include "libosnap.h"
-#include <osnap_hls_if.h>
+#include "osnap_hls_if.h"
 
 #include "constants.h"
 
@@ -102,24 +102,21 @@ typedef struct CAPIRegexJobDescriptor_s {
     // TODO: currently only 1 pattern for each job
     char* pattern;
 
-    // The pointer to the results (id of matched packets)
-    uint32_t* results;
+    // The pointer to the results
+    HeapTupleHeader* results;
+
+    // len of the results
+    uint32* results_len;
 
     // An index to record the result processing.
     // Each id corresponds one entry in the results buffer.
     int curr_result_id;
 
-    // The ID of the first block for this job
-    int start_blk_id;
-
-    // Number of blocks (postgresql blocks) for this job
-    int num_blks;
-
     // The ID of the first tuple for this job
-    int start_tuple_id;
+    int start_tup_id;
 
     // Number of tuples (postgresql tuples) for this job
-    size_t num_tuples;
+    size_t num_tups;
 
     // The thread id of this job descriptor
     int thread_id;
@@ -224,8 +221,8 @@ int capi_regex_compile (CAPIRegexJobDescriptor* job_desc, const char* pattern);
 //                         Relation rel, int attr_id);
 int capi_regex_scan (CAPIRegexJobDescriptor* job_desc);
 int print_results (size_t num_results, void* stat_dest_base);
-int get_results (void* result, size_t num_matched_pkt, void* stat_dest_base);
-int capi_regex_result_harvest (CAPIRegexJobDescriptor* job_desc);
+//int get_results (void* result, size_t num_matched_pkt, void* stat_dest_base);
+//int capi_regex_result_harvest (CAPIRegexJobDescriptor* job_desc);
 int capi_regex_job_cleanup (CAPIRegexJobDescriptor* job_desc);
 bool capi_regex_check_relation (Relation rel);
 

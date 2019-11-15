@@ -27,7 +27,6 @@
 #include <ctype.h>
 
 #include <osnap_tools.h>
-#include <osnap_action_regs.h>
 
 #include "fregex.h"
 #include "pg_capi_internal.h"
@@ -257,7 +256,7 @@ void action_write (struct snap_card* h, uint32_t addr, uint32_t data, int id)
     rc = snap_action_write32 (h, (uint64_t)REG (addr, id), data);
 
     if (0 != rc) {
-        elog (DEBUG1, "Write MMIO 32 Err\n");
+        elog (INFO, "Write MMIO 32 Err\n");
     }
 
     return;
@@ -271,7 +270,7 @@ uint32_t action_read (struct snap_card* h, uint32_t addr, int id)
     rc = snap_action_read32 (h, (uint64_t)REG (addr, id), &data);
 
     if (0 != rc) {
-        elog (DEBUG1, "Read MMIO 32 Err\n");
+        elog (INFO, "Read MMIO 32 Err\n");
     }
 
     return data;
@@ -293,7 +292,7 @@ int action_wait_idle (struct snap_card* h, int timeout)
     if (rc) {
         rc = 0;    /* Good */
     } else {
-        elog (DEBUG1, "Error. Timeout while Waiting for Idle\n");
+        elog (INFO, "Error. Timeout while Waiting for Idle\n");
     }
 
     return rc;
@@ -320,7 +319,7 @@ void soft_reset (struct snap_card* h, int id)
     // Status[4] to reset
     action_write (h, ACTION_CONTROL_L, 0x00000010, id);
     action_write (h, ACTION_CONTROL_H, 0x00000000, id);
-    elog (DEBUG1, " Write ACTION_CONTROL for soft reset!");
+    //elog (INFO, " Write ACTION_CONTROL for soft reset!");
     action_write (h, ACTION_CONTROL_L, 0x00000000, id);
     action_write (h, ACTION_CONTROL_H, 0x00000000, id);
 }
@@ -340,12 +339,14 @@ int action_regex (struct snap_card* h,
 
     print_control_status (h, id);
 
-    elog (DEBUG1, "PKT  source: %p", pkt_src_base);
-    elog (DEBUG1, "PATT source: %p", patt_src_base);
-    elog (DEBUG1, "Stat source: %p", stat_dest_base);
-    elog (DEBUG1, "PKT  size: %zu", pkt_size);
-    elog (DEBUG1, "PATT size: %zu", patt_size);
-    elog (DEBUG1, "Stat size: %zu", stat_size);
+    /*
+    elog (INFO, "PKT  source: %p", pkt_src_base);
+    elog (INFO, "PATT source: %p", patt_src_base);
+    elog (INFO, "Stat source: %p", stat_dest_base);
+    elog (INFO, "PKT  size: %zu", pkt_size);
+    elog (INFO, "PATT size: %zu", patt_size);
+    elog (INFO, "Stat size: %zu", stat_size);
+    */
 
     action_write (h, ACTION_PATT_INIT_ADDR_L,
                   (uint32_t) (((uint64_t) patt_src_base) & 0xffffffff), id);
@@ -399,7 +400,7 @@ int action_regex (struct snap_card* h,
 
         // Status[0]
         if ((reg_data & 0x00000001) == 1) {
-            elog (DEBUG1, "Pattern copy done!\n");
+            //elog (INFO, "Pattern copy done!\n");
             break;
         }
 
@@ -446,6 +447,8 @@ int action_regex (struct snap_card* h,
         }
     } while (1);
 
+    //elog (INFO, "work done!\n");
+
     // Stop working
     action_write (h, ACTION_CONTROL_L, 0x00000000, id);
     action_write (h, ACTION_CONTROL_H, 0x00000000, id);
@@ -478,6 +481,8 @@ int action_regex (struct snap_card* h,
             elog (INFO, "Heart beat on hardware draining polling");
         }
     } while (1);
+
+    //elog (INFO, "flushing done!\n");
 
     // Stop flushing
     action_write (h, ACTION_CONTROL_L, 0x00000000, id);
@@ -518,8 +523,8 @@ struct snap_action* get_action (struct snap_card* handle,
                               flags, timeout);
 
     if (NULL == act) {
-        elog (DEBUG1, "Error: Can not attach Action: %x\n", ACTION_TYPE_DATABASE);
-        elog (DEBUG1, "       Try to run snap_main tool\n");
+        elog (INFO, "Error: Can not attach Action: %x\n", ACTION_TYPE_DATABASE);
+        elog (INFO, "       Try to run snap_main tool\n");
     }
 
     return act;
@@ -676,9 +681,9 @@ int capi_regex_context_init (CAPIContext* context)
         return -1;
     }
 
-    elog (DEBUG1, "Start to get action.");
+    elog (INFO, "Start to get action.");
     context->act = get_action (context->dn, context->attach_flags, 5 * context->timeout);
-    elog (DEBUG1, "Finish get action.");
+    elog (INFO, "Finish get action.");
 
     return 0;
 }
@@ -709,8 +714,8 @@ int capi_regex_job_init (CAPIRegexJobDescriptor* job_desc,
     job_desc->pattern               = NULL;
     job_desc->results               = NULL;
     job_desc->curr_result_id        = 0;
-    job_desc->start_blk_id          = 0;
-    job_desc->num_blks              = 0;
+    job_desc->start_tup_id          = 0;
+    job_desc->num_tups              = 0;
     job_desc->thread_id             = 0;
     job_desc->t_init                = 0;
     job_desc->t_init                = 0;
@@ -802,55 +807,6 @@ int print_results (size_t num_results, void* stat_dest_base)
     return rc;
 }
 
-int get_results (void* result, size_t num_matched_pkt, void* stat_dest_base)
-{
-    int i = 0, j = 0;
-    uint32_t pkt_id = 0;
-
-    if (result == NULL) {
-        return -1;
-    }
-
-    for (i = 0; i < (int)num_matched_pkt; i++) {
-        for (j = 4; j < 8; j++) {
-            pkt_id |= (((uint8_t*)stat_dest_base)[i * 10 + j] << (j % 4) * 8);
-        }
-
-        ((uint32_t*)result)[i] = pkt_id;
-
-        pkt_id = 0;
-    }
-
-    return 0;
-}
-
-int capi_regex_result_harvest (CAPIRegexJobDescriptor* job_desc)
-{
-    if (job_desc == NULL) {
-        return -1;
-    }
-
-    int count = 0;
-
-    // Wait for transaction to be done.
-    do {
-        action_read (job_desc->context->dn, ACTION_STATUS_L, job_desc->thread_id);
-        count++;
-    } while (count < 10);
-
-    uint32_t reg_data = action_read (job_desc->context->dn, ACTION_STATUS_H, job_desc->thread_id);
-    job_desc->num_matched_pkt = reg_data;
-    job_desc->results = (uint32_t*) palloc (reg_data * sizeof (uint32_t));
-
-    elog (INFO, "Thread %d finished with %d matched packets", job_desc->thread_id, reg_data);
-
-    if (get_results (job_desc->results, reg_data, job_desc->stat_dest_base)) {
-        errno = ENODEV;
-        return -1;
-    }
-
-    return 0;
-}
 
 int capi_regex_job_cleanup (CAPIRegexJobDescriptor* job_desc)
 {
@@ -872,7 +828,7 @@ int capi_regex_job_cleanup (CAPIRegexJobDescriptor* job_desc)
     //free_mem (job_desc->stat_dest_base);
 
     if (job_desc->results) {
-        pfree (job_desc->results);
+        free (job_desc->results);
     }
 
     return 0;
@@ -927,4 +883,3 @@ void print_result (CAPIRegexJobDescriptor* job_desc, char* header_str, char* out
              job_desc->num_matched_pkt);
     print_time_text ("|Regex hardware scan|", job_desc->t_regex_scan / 1000, job_desc->pkt_size_wo_hw_hdr);
 }
-

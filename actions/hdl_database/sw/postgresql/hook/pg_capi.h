@@ -70,6 +70,7 @@ typedef struct PGCAPIScanState_s {
     CAPIRegexJobDescriptor** capi_regex_job_descs;
     int                      capi_regex_curr_job;
     int                      capi_regex_num_jobs;
+    int                      capi_regex_num_threads;
 } PGCAPIScanState;
 
 #endif  /* PG_CAPI_H */

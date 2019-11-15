@@ -19,7 +19,7 @@ if [[ -L ${capi_postgres} ]]; then
     unlink ${capi_postgres}
 fi
 
-ln -s $cwd ${capi_postgres} 
+ln -s $cwd/../tests ${capi_postgres} 
 
 if [[ ! -d ${capi_postgres} ]]; then
     echo "${capi_postgres} is not a valid path!"
@@ -36,12 +36,14 @@ echo "Copying pg_capi.control to $extension_path"
 /usr/bin/install -c -m 644 ./pg_capi.control $extension_path
 
 # Grant CAPI device permission to user *postgres*
-setfacl -m u:postgres:rw /dev/ocxl/IBM\,oc-snap\.0007\:00\:00\.1\.0
+# setfacl -m u:postgres:rw /dev/ocxl/IBM\,oc-snap\.0007\:00\:00\.1\.0
+chmod 777 /sys/class/ocxl/IBM,oc-snap.0004:00:00.1.0/global_mmio_area
+chmod 777 /dev/ocxl/IBM,oc-snap.0004:00:00.1.0
 # Enable CAPI-SNAP card
 #../../../../../software/tools/snap_maint -vv
 
 if [[ $? != 0 ]]; then
-    echo "SNAP maint failed, please check the card status!"
+    echo "Chmod failed! Please check if you have the permission to chmod ocxl device nodes."
     exit 1
 fi
 

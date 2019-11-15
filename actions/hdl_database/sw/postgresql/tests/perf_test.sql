@@ -47,7 +47,7 @@ BEGIN
         IF count_line(format('perf_test_%s', r)) = 0 THEN
             _cmd := 
                 format(
-                    'COPY perf_test_%1$s (pkt) FROM ''/home/postgres/capi/tests/perf_test/packet.1024.%1$s.txt'' DELIMITER '' ''; ',
+                    'COPY perf_test_%1$s (pkt) FROM ''/home/postgres/capi/perf_test/packet.1024.%1$s.txt'' DELIMITER '' ''; ',
                     r
                 );
             EXECUTE _cmd;

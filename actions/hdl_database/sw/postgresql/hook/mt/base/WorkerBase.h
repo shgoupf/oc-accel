@@ -35,7 +35,7 @@ public:
 
     // Delete a thread from the queue
     void delete_thread (int in_thread_id);
-    
+
     // Initialize each thread
     virtual int init() = 0;
 

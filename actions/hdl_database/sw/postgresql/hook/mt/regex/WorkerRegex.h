@@ -67,12 +67,9 @@ public:
     // Get the attribute ID to be scanned
     int get_attr_id();
 
-    // Get the number of buffers (blocks) for different thread
-    int get_num_blks_per_thread (int in_thread_id, int* out_start_blk_id);
-
     // Get the number of tuples for different thread
     // TODO: assume tuples are evenly distributed across buffers
-    size_t get_num_tuples_per_thread (int in_thread_id);
+    size_t get_num_tups_per_thread (int in_thread_id, int* out_start_tup_id);
 
     // Clean up any threads created for this worker
     virtual void cleanup();
@@ -86,6 +83,12 @@ public:
     // A container to hold all buffer pointers of this relation,
     // make it public so it can be referenced with minimum cost.
     Buffer* m_buffers;
+
+    // A container to hold all tupler header pointers
+    HeapTupleHeader* m_tuples;
+
+    // Length of tuples
+    uint32* m_tuples_len;
 
 private:
     // Use interrupt or poll to check thread done?
