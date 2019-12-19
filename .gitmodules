@@ -4,3 +4,6 @@
 [submodule "actions/hdl_database/string-match-fpga"]
 	path = actions/hdl_database/string-match-fpga
 	url = git@github.ibm.com:shgoupf/string-match-fpga.git
+[submodule "actions/hdl_database/Vitis_Libraries"]
+	path = actions/hdl_database/Vitis_Libraries
+	url = https://github.com/Xilinx/Vitis_Libraries.git

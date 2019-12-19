@@ -21,55 +21,57 @@
 `timescale 1ns/1ps
 
 (* KEEP_HIERARCHY = "yes" *) module action_wrapper #(
-    parameter KERNEL_NUM = NUM_KERNELS,
+    parameter KERNEL_NUM = NUM_KERNELS
     // Parameters of Axi Master Bus Interface AXI_CARD_MEM0 ; to DDR memory
-    parameter C_M_AXI_CARD_MEM0_ID_WIDTH     = 4,
-    parameter C_M_AXI_CARD_MEM0_ADDR_WIDTH   = 33,
-    parameter C_M_AXI_CARD_MEM0_DATA_WIDTH   = 512,
-    parameter C_M_AXI_CARD_MEM0_AWUSER_WIDTH = 1,
-    parameter C_M_AXI_CARD_MEM0_ARUSER_WIDTH = 1,
-    parameter C_M_AXI_CARD_MEM0_WUSER_WIDTH  = 1,
-    parameter C_M_AXI_CARD_MEM0_RUSER_WIDTH  = 1,
-    parameter C_M_AXI_CARD_MEM0_BUSER_WIDTH  = 1,
+    ,parameter C_M_AXI_CARD_MEM0_ID_WIDTH     = 4
+    ,parameter C_M_AXI_CARD_MEM0_ADDR_WIDTH   = 33
+    ,parameter C_M_AXI_CARD_MEM0_DATA_WIDTH   = 512
+    ,parameter C_M_AXI_CARD_MEM0_AWUSER_WIDTH = 1
+    ,parameter C_M_AXI_CARD_MEM0_ARUSER_WIDTH = 1
+    ,parameter C_M_AXI_CARD_MEM0_WUSER_WIDTH  = 1
+    ,parameter C_M_AXI_CARD_MEM0_RUSER_WIDTH  = 1
+    ,parameter C_M_AXI_CARD_MEM0_BUSER_WIDTH  = 1
 
     // Parameters of Axi Slave Bus Interface AXI_CTRL_REG
-    parameter C_S_AXI_CTRL_REG_DATA_WIDTH    = 32,
-    parameter C_S_AXI_CTRL_REG_ADDR_WIDTH    = 32,
+    ,parameter C_S_AXI_CTRL_REG_DATA_WIDTH    = 32
+    ,parameter C_S_AXI_CTRL_REG_ADDR_WIDTH    = 32
 
     // Parameters of Axi Master Bus Interface AXI_HOST_MEM ; to Host memory
-    parameter C_M_AXI_HOST_MEM_ID_WIDTH      = 5,
-    parameter C_M_AXI_HOST_MEM_ADDR_WIDTH    = 64,
-    parameter C_M_AXI_HOST_MEM_DATA_WIDTH    = 1024,
-    parameter C_M_AXI_HOST_MEM_AWUSER_WIDTH  = 9,
-    parameter C_M_AXI_HOST_MEM_ARUSER_WIDTH  = 9,
-    parameter C_M_AXI_HOST_MEM_WUSER_WIDTH   = 9,
-    parameter C_M_AXI_HOST_MEM_RUSER_WIDTH   = 9,
-    parameter C_M_AXI_HOST_MEM_BUSER_WIDTH   = 9,
-    parameter INT_BITS                       = 3,
-    parameter CONTEXT_BITS                   = 9,
+    ,parameter C_M_AXI_HOST_MEM_ID_WIDTH      = 5
+    ,parameter C_M_AXI_HOST_MEM_ADDR_WIDTH    = 64
+    ,parameter C_M_AXI_HOST_MEM_DATA_WIDTH    = 1024
+    ,parameter C_M_AXI_HOST_MEM_AWUSER_WIDTH  = 9
+    ,parameter C_M_AXI_HOST_MEM_ARUSER_WIDTH  = 9
+    ,parameter C_M_AXI_HOST_MEM_WUSER_WIDTH   = 9
+    ,parameter C_M_AXI_HOST_MEM_RUSER_WIDTH   = 9
+    ,parameter C_M_AXI_HOST_MEM_BUSER_WIDTH   = 9
+    ,parameter INT_BITS                       = 3
+    ,parameter CONTEXT_BITS                   = 9
 
-    parameter INPUT_PACKET_STAT_WIDTH        = 48,
-    parameter INPUT_BATCH_WIDTH              = 512,
-    parameter INPUT_BATCH_PER_PACKET         = 1,
-    parameter PIPE_INDATA_WIDTH              = 64,
+    #if defined(REGEX_ENGINE_ENABLE)
+    ,parameter INPUT_PACKET_STAT_WIDTH        = 48
+    ,parameter INPUT_BATCH_WIDTH              = 512
+    ,parameter INPUT_BATCH_PER_PACKET         = 1
+    ,parameter PIPE_INDATA_WIDTH              = 64
     //parameter CONFIG_CNT_WIDTH               = 3, // CONFIG_CNT_WIDTH = log2NUM_OF_PU;
-    parameter OUTPUT_STAT_WIDTH              = 80,
+    ,parameter OUTPUT_STAT_WIDTH              = 80
     //parameter PATTERN_WIDTH                  = 448, 
-    parameter PATTERN_ID_WIDTH               = 32,
-    parameter MAX_OR_NUM                     = 8,
-    parameter MAX_TOKEN_NUM                  = 8,//16,
-    parameter MAX_STATE_NUM                  = 8,//16,
-    parameter MAX_TOKEN_LEN                  = 8,//16,
-    parameter MAX_CHAR_NUM                   = 8,//32,
-    parameter PATTERN_NUM_FL                 = 1,
-    parameter PATTERN_NUM_SL                 = 1,
-    parameter NUM_OF_PU                      = 1,
-    parameter NUM_BUFFER_SL                  = REGEX_NUM_BUFFER_SL,
-    parameter NUM_BUFFER_TL                  = REGEX_NUM_BUFFER_TL,
-    parameter NUM_BUFFER_4THL                = REGEX_NUM_BUFFER_4THL,
-    parameter NUM_STRING_MATCH_PIPELINE      = REGEX_NUM_STRING_MATCH_PIPELINE,
-    parameter NUM_PIPELINE_IN_A_GROUP        = REGEX_NUM_PIPELINE_IN_A_GROUP,
-    parameter NUM_OF_PIPELINE_GROUP          = REGEX_NUM_OF_PIPELINE_GROUP
+    ,parameter PATTERN_ID_WIDTH               = 32
+    ,parameter MAX_OR_NUM                     = 8
+    ,parameter MAX_TOKEN_NUM                  = 8,//16
+    ,parameter MAX_STATE_NUM                  = 8,//16
+    ,parameter MAX_TOKEN_LEN                  = 8,//16
+    ,parameter MAX_CHAR_NUM                   = 8,//32
+    ,parameter PATTERN_NUM_FL                 = 1
+    ,parameter PATTERN_NUM_SL                 = 1
+    ,parameter NUM_OF_PU                      = 1
+    ,parameter NUM_BUFFER_SL                  = REGEX_NUM_BUFFER_SL
+    ,parameter NUM_BUFFER_TL                  = REGEX_NUM_BUFFER_TL
+    ,parameter NUM_BUFFER_4THL                = REGEX_NUM_BUFFER_4THL
+    ,parameter NUM_STRING_MATCH_PIPELINE      = REGEX_NUM_STRING_MATCH_PIPELINE
+    ,parameter NUM_PIPELINE_IN_A_GROUP        = REGEX_NUM_PIPELINE_IN_A_GROUP
+    ,parameter NUM_OF_PIPELINE_GROUP          = REGEX_NUM_OF_PIPELINE_GROUP
+    #endif
 )
 (
     input  ap_clk                    ,
@@ -199,8 +201,13 @@
     wire [31:0] action_version;
 
     assign num_kernels = KERNEL_NUM;
+    #if defined(REGEX_ENGINE_ENABLE)
     assign num_pkt_pipes = NUM_STRING_MATCH_PIPELINE;
     assign num_patt_pipes = NUM_OF_PU;
+    #else
+    assign num_pkt_pipes = 0;
+    assign num_patt_pipes = 0;
+    #endif
     assign version = 8'h01;
     assign m_axi_host_mem_arid[C_M_AXI_HOST_MEM_ID_WIDTH-1:4] = 0;
 
@@ -213,53 +220,55 @@
     assign interrupt_src = 0;
 
     action_hdl_database #(
-        .KERNEL_NUM                    (KERNEL_NUM),
+        .KERNEL_NUM                    (KERNEL_NUM)
         // Parameters of Axi Master Bus Interface AXI_CARD_MEM0 ; to DDR memory
-        .C_M_AXI_CARD_MEM0_ID_WIDTH    (C_M_AXI_CARD_MEM0_ID_WIDTH    ),
-        .C_M_AXI_CARD_MEM0_ADDR_WIDTH  (C_M_AXI_CARD_MEM0_ADDR_WIDTH  ),
-        .C_M_AXI_CARD_MEM0_DATA_WIDTH  (C_M_AXI_CARD_MEM0_DATA_WIDTH  ),
-        .C_M_AXI_CARD_MEM0_AWUSER_WIDTH(C_M_AXI_CARD_MEM0_AWUSER_WIDTH),
-        .C_M_AXI_CARD_MEM0_ARUSER_WIDTH(C_M_AXI_CARD_MEM0_ARUSER_WIDTH),
-        .C_M_AXI_CARD_MEM0_WUSER_WIDTH (C_M_AXI_CARD_MEM0_WUSER_WIDTH ),
-        .C_M_AXI_CARD_MEM0_RUSER_WIDTH (C_M_AXI_CARD_MEM0_RUSER_WIDTH ),
-        .C_M_AXI_CARD_MEM0_BUSER_WIDTH (C_M_AXI_CARD_MEM0_BUSER_WIDTH ),
+        ,.C_M_AXI_CARD_MEM0_ID_WIDTH    (C_M_AXI_CARD_MEM0_ID_WIDTH    )
+        ,.C_M_AXI_CARD_MEM0_ADDR_WIDTH  (C_M_AXI_CARD_MEM0_ADDR_WIDTH  )
+        ,.C_M_AXI_CARD_MEM0_DATA_WIDTH  (C_M_AXI_CARD_MEM0_DATA_WIDTH  )
+        ,.C_M_AXI_CARD_MEM0_AWUSER_WIDTH(C_M_AXI_CARD_MEM0_AWUSER_WIDTH)
+        ,.C_M_AXI_CARD_MEM0_ARUSER_WIDTH(C_M_AXI_CARD_MEM0_ARUSER_WIDTH)
+        ,.C_M_AXI_CARD_MEM0_WUSER_WIDTH (C_M_AXI_CARD_MEM0_WUSER_WIDTH )
+        ,.C_M_AXI_CARD_MEM0_RUSER_WIDTH (C_M_AXI_CARD_MEM0_RUSER_WIDTH )
+        ,.C_M_AXI_CARD_MEM0_BUSER_WIDTH (C_M_AXI_CARD_MEM0_BUSER_WIDTH )
 
         // Parameters of Axi Slave Bus Interface AXI_CTRL_REG
-        .C_S_AXI_CTRL_REG_DATA_WIDTH   (C_S_AXI_CTRL_REG_DATA_WIDTH   ),
-        .C_S_AXI_CTRL_REG_ADDR_WIDTH   (C_S_AXI_CTRL_REG_ADDR_WIDTH   ),
+        ,.C_S_AXI_CTRL_REG_DATA_WIDTH   (C_S_AXI_CTRL_REG_DATA_WIDTH   )
+        ,.C_S_AXI_CTRL_REG_ADDR_WIDTH   (C_S_AXI_CTRL_REG_ADDR_WIDTH   )
 
         // Parameters of Axi Master Bus Interface AXI_HOST_MEM ; to Host memory
-        .C_M_AXI_HOST_MEM_ID_WIDTH     (C_M_AXI_HOST_MEM_ID_WIDTH     ),
-        .C_M_AXI_HOST_MEM_ADDR_WIDTH   (C_M_AXI_HOST_MEM_ADDR_WIDTH   ),
-        .C_M_AXI_HOST_MEM_DATA_WIDTH   (C_M_AXI_HOST_MEM_DATA_WIDTH   ),
-        .C_M_AXI_HOST_MEM_AWUSER_WIDTH (C_M_AXI_HOST_MEM_AWUSER_WIDTH ),
-        .C_M_AXI_HOST_MEM_ARUSER_WIDTH (C_M_AXI_HOST_MEM_ARUSER_WIDTH ),
-        .C_M_AXI_HOST_MEM_WUSER_WIDTH  (C_M_AXI_HOST_MEM_WUSER_WIDTH  ),
-        .C_M_AXI_HOST_MEM_RUSER_WIDTH  (C_M_AXI_HOST_MEM_RUSER_WIDTH  ),
-        .C_M_AXI_HOST_MEM_BUSER_WIDTH  (C_M_AXI_HOST_MEM_BUSER_WIDTH  ),
+        ,.C_M_AXI_HOST_MEM_ID_WIDTH     (C_M_AXI_HOST_MEM_ID_WIDTH     )
+        ,.C_M_AXI_HOST_MEM_ADDR_WIDTH   (C_M_AXI_HOST_MEM_ADDR_WIDTH   )
+        ,.C_M_AXI_HOST_MEM_DATA_WIDTH   (C_M_AXI_HOST_MEM_DATA_WIDTH   )
+        ,.C_M_AXI_HOST_MEM_AWUSER_WIDTH (C_M_AXI_HOST_MEM_AWUSER_WIDTH )
+        ,.C_M_AXI_HOST_MEM_ARUSER_WIDTH (C_M_AXI_HOST_MEM_ARUSER_WIDTH )
+        ,.C_M_AXI_HOST_MEM_WUSER_WIDTH  (C_M_AXI_HOST_MEM_WUSER_WIDTH  )
+        ,.C_M_AXI_HOST_MEM_RUSER_WIDTH  (C_M_AXI_HOST_MEM_RUSER_WIDTH  )
+        ,.C_M_AXI_HOST_MEM_BUSER_WIDTH  (C_M_AXI_HOST_MEM_BUSER_WIDTH  )
 
-        .INPUT_PACKET_STAT_WIDTH       (INPUT_PACKET_STAT_WIDTH       ),
-        .INPUT_BATCH_WIDTH             (INPUT_BATCH_WIDTH             ),
-        .INPUT_BATCH_PER_PACKET        (INPUT_BATCH_PER_PACKET        ),
-        .PIPE_INDATA_WIDTH             (PIPE_INDATA_WIDTH             ),
-        .PATTERN_NUM_FL                (PATTERN_NUM_FL                ),
-        .PATTERN_NUM_SL                (PATTERN_NUM_SL                ),
-        .NUM_OF_PU                     (NUM_OF_PU                     ),
+        #if defined(REGEX_ENGINE_ENABLE)
+        ,.INPUT_PACKET_STAT_WIDTH       (INPUT_PACKET_STAT_WIDTH       )
+        ,.INPUT_BATCH_WIDTH             (INPUT_BATCH_WIDTH             )
+        ,.INPUT_BATCH_PER_PACKET        (INPUT_BATCH_PER_PACKET        )
+        ,.PIPE_INDATA_WIDTH             (PIPE_INDATA_WIDTH             )
+        ,.PATTERN_NUM_FL                (PATTERN_NUM_FL                )
+        ,.PATTERN_NUM_SL                (PATTERN_NUM_SL                )
+        ,.NUM_OF_PU                     (NUM_OF_PU                     )
         //.CONFIG_CNT_WIDTH              (CONFIG_CNT_WIDTH              ), // CONFIG_CNT_WIDTH = log2NUM_OF_PU;
-        .OUTPUT_STAT_WIDTH             (OUTPUT_STAT_WIDTH             ),
+        ,.OUTPUT_STAT_WIDTH             (OUTPUT_STAT_WIDTH             )
         //.PATTERN_WIDTH                 (PATTERN_WIDTH                 ),
-        .PATTERN_ID_WIDTH              (PATTERN_ID_WIDTH              ),
-        .MAX_OR_NUM                    (MAX_OR_NUM                    ),
-        .MAX_TOKEN_NUM                 (MAX_TOKEN_NUM                 ),
-        .MAX_STATE_NUM                 (MAX_STATE_NUM                 ),
-        .MAX_TOKEN_LEN                 (MAX_TOKEN_LEN                 ),
-        .MAX_CHAR_NUM                  (MAX_CHAR_NUM                  ),
-        .NUM_BUFFER_SL                 (NUM_BUFFER_SL                 ),
-        .NUM_BUFFER_TL                 (NUM_BUFFER_TL                 ),
-        .NUM_BUFFER_4THL               (NUM_BUFFER_4THL               ),
-        .NUM_STRING_MATCH_PIPELINE     (NUM_STRING_MATCH_PIPELINE     ),
-        .NUM_PIPELINE_IN_A_GROUP       (NUM_PIPELINE_IN_A_GROUP       ),
-        .NUM_OF_PIPELINE_GROUP         (NUM_OF_PIPELINE_GROUP         )
+        ,.PATTERN_ID_WIDTH              (PATTERN_ID_WIDTH              )
+        ,.MAX_OR_NUM                    (MAX_OR_NUM                    )
+        ,.MAX_TOKEN_NUM                 (MAX_TOKEN_NUM                 )
+        ,.MAX_STATE_NUM                 (MAX_STATE_NUM                 )
+        ,.MAX_TOKEN_LEN                 (MAX_TOKEN_LEN                 )
+        ,.MAX_CHAR_NUM                  (MAX_CHAR_NUM                  )
+        ,.NUM_BUFFER_SL                 (NUM_BUFFER_SL                 )
+        ,.NUM_BUFFER_TL                 (NUM_BUFFER_TL                 )
+        ,.NUM_BUFFER_4THL               (NUM_BUFFER_4THL               )
+        ,.NUM_STRING_MATCH_PIPELINE     (NUM_STRING_MATCH_PIPELINE     )
+        ,.NUM_PIPELINE_IN_A_GROUP       (NUM_PIPELINE_IN_A_GROUP       )
+        ,.NUM_OF_PIPELINE_GROUP         (NUM_OF_PIPELINE_GROUP         )
+        #endif
     ) action_hdl_database_0 (
         .clk                   (ap_clk),
         .rst_n                 (ap_rst_n), 

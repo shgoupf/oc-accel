@@ -403,9 +403,9 @@ config NUM_OF_DATABASE_KERNELS
 	  Number of kernels (engines) in database acceleration.
 
 choice
-	bool "Database regex engine configuration"
+	bool "Database engine configuration"
 	help
-            Select different regex engine configuration
+            Select different engine configuration
         depends on HDL_DATABASE
 	default REGEX_16X1
 
@@ -424,16 +424,22 @@ choice
 		help
                     Regex with 8X1 configuration
 
+	config VITIS_L2_gqeJoin
+		bool "gqeJoin -- Join engine from VITIS database lib"
+		help
+                    gqeJoin engine from VITIS database lib
+
 endchoice
 
-config DATABASE_REGEX_CONFIG
+config DATABASE_ENGINE_CONFIG
         depends on HDL_DATABASE
         string
-	default "64X1" if REGEX_64X1
-	default "16X1" if REGEX_16X1
-	default "8X1"  if REGEX_8X1
+	default "regex_64X1"     if REGEX_64X1
+	default "regex_16X1"     if REGEX_16X1
+	default "regex_8X1"      if REGEX_8X1
+	default "vitis_gqeJoin"  if VITIS_L2_gqeJoin
 	help
-	  Number of kernels (engines) in database acceleration.
+	  Configuration of regex engines.
 
 config SIMULATOR
 	string
