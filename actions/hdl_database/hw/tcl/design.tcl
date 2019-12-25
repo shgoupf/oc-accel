@@ -51,10 +51,16 @@ if { $regex_engine == "TRUE" } {
 }
 
 # Framework and Regex IP
-foreach ip_xci [exec find $action_ip_dir -name *.xci] {
+foreach ip_xci [exec find $action_ip_dir/framework -name *.xci] {
     set ip_name [exec basename $ip_xci .xci]
     puts "                        importing IP $ip_name (in framework)"
     add_files -norecurse $ip_xci -force >> $log_file
     export_ip_user_files -of_objects  [get_files "$ip_xci"] -no_script -sync -force >> $log_file
 }
 
+foreach ip_xci [exec find $action_ip_dir -name gqeJoin_HBM_1.xci] {
+    set ip_name [exec basename $ip_xci .xci]
+    puts "                        importing IP $ip_name (in engine)"
+    add_files -norecurse $ip_xci -force >> $log_file
+    export_ip_user_files -of_objects  [get_files "$ip_xci"] -no_script -sync -force >> $log_file
+}

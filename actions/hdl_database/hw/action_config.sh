@@ -174,11 +174,13 @@ if [ $REGEX_ENGINE -eq 1 ]; then
 fi
 
 if [ $GQEJOIN_ENGINE -eq 1 ]; then
-    echo "                        Call gqejoin_hls_synth.tcl to generate gqejoin IP"
-    if [ ! -d engines/hls_build ]; then
-        mkdir -p engines/hls_build
+    # gqeJoin HLS generation
+    gqeJoin_HLS_dir=$ACTION_ROOT/ip/engines/hls_build
+    if [ ! -d $gqeJoin_HLS_dir ]; then
+        mkdir -p $gqeJoin_HLS_dir
 
-        cd engines/hls_build
+        cd $gqeJoin_HLS_dir
+        echo "                        Call gqejoin_hls_synth.tcl to generate gqejoin IP"
         vivado_hls $ACTION_ROOT/ip/tcl/gqejoin_hls_synth.tcl $ACTION_ROOT $FPGACHIP >> gqejoin_hls_synth.log
 
         if [ ! $? ]; then
@@ -187,18 +189,67 @@ if [ $GQEJOIN_ENGINE -eq 1 ]; then
         fi
         echo "                        Generate gqejoin IP done with return code $rc"
 
-        cd ../../
+        cd $ACTION_ROOT/hw
     fi
-fi
 
-# Create IP for the gqeJoin engine
-if [ ! -d $ACTION_ROOT/ip/engines/gqejoin ]; then
-    echo "                        Call create_gqejoin_ip.tcl to generate gqeJoin engine IPs"
-    vivado -mode batch -source $ACTION_ROOT/ip/tcl/create_gqejoin_ip.tcl -notrace -nojournal -tclargs $ACTION_ROOT $FPGACHIP >> create_gqejoin_ip.log
+    # Generate HMSS block design
+    hmss_repo_dir=$ACTION_ROOT/ip/engines/repos/hmss
+    if [ ! -d $hmss_repo_dir ]; then
+        mkdir -p $hmss_repo_dir
+        echo "                        Call create_hmss_ip.tcl to generate gqeJoin engine IPs"
+        cd $hmss_repo_dir
+        vivado -mode batch -source $ACTION_ROOT/ip/tcl/generate_hmss.tcl -notrace -nojournal -tclargs \
+            $hmss_repo_dir $FPGACHIP >> generate_hmss.log 
 
-    if [ ! $? ]; then
-        echo "!! ERROR generating gqeJoin engine IPs."
-        exit -1;
+        if [ ! $? ]; then
+            echo "!! ERROR generating hmss engine block design"
+            exit -1;
+        fi
+
+        cd $ACTION_ROOT/hw
+    fi
+
+    # Generate gqeJoin_HBM block design
+    gqeJoin_HBM_repo_dir=$ACTION_ROOT/ip/engines/repos/gqeJoin_HBM
+    if [ ! -d $gqeJoin_HBM_repo_dir ]; then
+        mkdir -p $gqeJoin_HBM_repo_dir
+        echo "                        Call generate_gqeJoin_HBM.tcl to generate gqeJoin engine block design"
+        cd $gqeJoin_HBM_repo_dir
+        vivado -mode batch -source $ACTION_ROOT/ip/tcl/generate_gqeJoin_HBM.tcl -notrace -nojournal -tclargs \
+            $gqeJoin_HBM_repo_dir \
+            $FPGACHIP \
+            $gqeJoin_HLS_dir/gqeJoin/solution/impl/ip/ \
+            $hmss_repo_dir/myproj/project_1.srcs/sources_1/bd/hmss \
+            >> generate_gqeJoin_HBM.log 
+
+        if [ ! $? ]; then
+            echo "!! ERROR generating gqeJoin block design"
+            exit -1;
+        fi
+
+        cd $ACTION_ROOT/hw
+    fi
+
+    # Create IP for the gqeJoin_HBM
+    gqeJoin_HBM_ip_dir=$ACTION_ROOT/ip/engines/gqeJoin_HBM
+    if [ ! -d $gqeJoin_HBM_ip_dir ]; then
+        mkdir -p $gqeJoin_HBM_ip_dir
+        cd $gqeJoin_HBM_ip_dir
+        echo "                        Call create_gqeJoin_HBM_ip.tcl to generate gqeJoin engine IPs"
+        vivado -mode batch -source $ACTION_ROOT/ip/tcl/create_gqeJoin_HBM_ip.tcl -notrace -nojournal -tclargs \
+            $gqeJoin_HBM_ip_dir \
+            $FPGACHIP \
+            $gqeJoin_HBM_repo_dir/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM/ \
+            $gqeJoin_HLS_dir/gqeJoin/solution/impl/ip/ \
+            $hmss_repo_dir/myproj/project_1.srcs/sources_1/bd/hmss \
+            >> create_gqeJoin_HBM_ip.log
+
+        if [ ! $? ]; then
+            echo "!! ERROR createing gqeJoin engine IPs."
+            exit -1;
+        fi
+
+        cd $ACTION_ROOT/hw
     fi
 fi
 
