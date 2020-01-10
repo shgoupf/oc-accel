@@ -67,6 +67,8 @@
 #define PATTERN_ID_WIDTH                32
 #define NUM_OF_PU                       8
 
+#define VITIS_REG_BASE                  0x10
+
 // The width of pattern is calculated per the following equation
 #define PATTERN_WIDTH_BITS (PATTERN_ID_WIDTH+MAX_CHAR_NUM*16+MAX_STATE_NUM*8+8+8+MAX_STATE_NUM+MAX_STATE_NUM*MAX_CHAR_NUM+MAX_STATE_NUM*MAX_STATE_NUM+MAX_STATE_NUM*MAX_STATE_NUM+MAX_STATE_NUM)
 

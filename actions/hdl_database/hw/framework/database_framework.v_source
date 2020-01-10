@@ -342,6 +342,18 @@ module database_framework #(
     wire               kernel_s_axi_snap_rvalid [KERNEL_NUM:0];
     //Instantiate kernels
 
+    #if defined(VITIS_GQEJOIN_ENABLE)
+    wire               hbm_mc_init_seq_complete_0;
+    wire               hbm_ref_clk;
+    
+    // BUFG for HBM REF CLK and APB CLK
+    BUFG u_HBM_REF_CLK_BUFG  (
+      .I (clk),
+      .O (hbm_ref_clk)
+    );
+    
+    #endif
+
     genvar i;
     generate
         #if defined(VITIS_GQEJOIN_ENABLE)
@@ -578,9 +590,9 @@ module database_framework #(
                 ,.ap_clk                       ( clk                              )
                 ,.hbm_aclk                     ( clk                              )
                 ,.ap_rst_n                     ( rst_n                            )
-                ,.hbm_ref_clk                  ( /* TODO */                       )
+                ,.hbm_ref_clk                  ( hbm_ref_clk                      )
                 ,.hbm_aresetn                  ( rst_n                            )
-                ,.hbm_mc_init_seq_complete_0   (                                  )
+                ,.hbm_mc_init_seq_complete_0   ( hbm_mc_init_seq_complete_0       )
                 ,.DRAM_0_STAT_TEMP_0           (                                  )
                 ,.DRAM_1_STAT_TEMP_0           (                                  )
                 ,.DRAM_STAT_CATTRIP_0          (                                  )
