@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-subdirs += direct
+subdirs += vitis
 
 all: $(subdirs)
 

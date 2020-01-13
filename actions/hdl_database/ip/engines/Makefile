@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 
-subdirs += regex
+subdirs += regex gqeJoin_HBM repos hls_build
 
 .PHONY: clean
 
@@ -22,7 +22,7 @@ subdirs += regex
 # Only dive into subdirectory if existent and if Makefile is there.
 clean:
 	@for dir in $(subdirs); do	\
-		if [ -d $$dir -a -d $$dir/managed_ip_project ]; then	\
-		        cd $$dir; find . -maxdepth 1 -type d ! -path '.' -print -exec rm -r {} \;;   \
+		if [ -d $$dir ]; then	\
+		        rm -r $$dir \;;   \
 		fi						\
 	done

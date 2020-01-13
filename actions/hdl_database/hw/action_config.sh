@@ -187,7 +187,6 @@ if [ $GQEJOIN_ENGINE -eq 1 ]; then
             echo "!! ERROR generating gqejoin engine"
             exit -1;
         fi
-        echo "                        Generate gqejoin IP done with return code $rc"
 
         cd $ACTION_ROOT/hw
     fi

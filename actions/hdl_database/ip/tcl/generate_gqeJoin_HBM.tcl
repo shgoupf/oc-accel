@@ -106,11 +106,11 @@ ipx::create_xgui_files [ipx::current_core]
 ipx::update_checksums [ipx::current_core]
 ipx::save_core [ipx::current_core]
 
-set ip_repos [list $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM $gqeJoin_ip_repo $hmss_ip_repo]
-set_property  ip_repo_paths  $ip_repos [current_project]
-update_ip_catalog
+#set ip_repos [list $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM $gqeJoin_ip_repo $hmss_ip_repo]
+#set_property  ip_repo_paths  $ip_repos [current_project]
+#update_ip_catalog
 
-generate_target all [get_files  $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM/gqeJoin_HBM.bd]
-catch { config_ip_cache -export [get_ips -all gqeJoin_HBM_gqeJoin_0_0] }
-catch { config_ip_cache -export [get_ips -all gqeJoin_HBM_hmss_wrapper_0_0] }
-export_ip_user_files -of_objects [get_files $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM/gqeJoin_HBM.bd] -no_script -sync -force -quiet
+#generate_target all [get_files  $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM/gqeJoin_HBM.bd]
+#catch { config_ip_cache -export [get_ips -all gqeJoin_HBM_gqeJoin_0_0] }
+#catch { config_ip_cache -export [get_ips -all gqeJoin_HBM_hmss_wrapper_0_0] }
+#export_ip_user_files -of_objects [get_files $root/my_proj/my_proj.srcs/sources_1/bd/gqeJoin_HBM/gqeJoin_HBM.bd] -no_script -sync -force -quiet

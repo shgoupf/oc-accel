@@ -144,26 +144,26 @@ void configure_vitis_reg (struct snap_card* h, int reg_id, uint64_t reg_data, in
 
     uint32_t reg_offset = reg_id * 0xC + 0 * 0x4;
     uint32_t reg_addr = VITIS_REG_BASE + reg_offset;
-    VERBOSE1 ("----------------> Writing to %#x with %#x", reg_addr, lsb);
+    VERBOSE1 ("----------------> Writing to %#x with %#x\n", reg_addr, lsb);
     action_write (h, REG (reg_addr, eng_id), lsb);
 
     reg_offset = reg_id * 0xC + 1 * 0x4;
     reg_addr = VITIS_REG_BASE + reg_offset;
-    VERBOSE1 ("----------------> Writing to %#x with %#x", reg_addr, msb);
+    VERBOSE1 ("----------------> Writing to %#x with %#x\n", reg_addr, msb);
     action_write (h, REG (reg_addr, eng_id), msb);
 
     reg_offset = reg_id * 0xC + 2 * 0x4;
     reg_addr = VITIS_REG_BASE + reg_offset;
-    VERBOSE1 ("----------------> Writing to %#x with %#x", reg_addr, 0);
+    VERBOSE1 ("----------------> Writing to %#x with %#x\n", reg_addr, 0);
     action_write (h, REG (reg_addr, eng_id), 0);
 
     return;
 }
 
-void action_vitis (struct snap_card* h, int eng_id)
+void action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
 {
     VitisTable* vitis_table_ptr = new VitisTable();
-    vitis_table_ptr->init_tables(std::string("."));
+    vitis_table_ptr->init_tables (in_dir);
 
     configure_vitis_reg (h, 0, (uint64_t) vitis_table_ptr->get_table_l_ptr(), eng_id);
     configure_vitis_reg (h, 1, (uint64_t) vitis_table_ptr->get_table_x_ptr(), eng_id);
@@ -197,7 +197,8 @@ void action_vitis (struct snap_card* h, int eng_id)
 
 int vitis_run (struct snap_card* dnc,
                int timeout,
-               int eng_id)
+               int eng_id,
+               std::string & in_dir)
 {
     int rc;
 
@@ -205,7 +206,7 @@ int vitis_run (struct snap_card* dnc,
 
     high_resolution_clock::time_point t_start = high_resolution_clock::now();
 
-    action_vitis (dnc, eng_id);
+    action_vitis (dnc, eng_id, in_dir);
     rc = action_wait_idle (dnc, timeout);
 
     high_resolution_clock::time_point t_end = high_resolution_clock::now();
@@ -260,6 +261,7 @@ int main (int argc, char* argv[])
     snap_action_flag_t attach_flags = (snap_action_flag_t) 0;
     struct snap_action* act = NULL;
     uint32_t hw_version = 0;
+    std::string in_dir;
 
     while (1) {
         int option_index = 0;
@@ -271,9 +273,10 @@ int main (int argc, char* argv[])
             { "quiet", no_argument, NULL, 'q' },
             { "timeout", required_argument, NULL, 't' },
             { "irq", no_argument, NULL, 'I' },
+            { "in_dir", no_argument, NULL, 'i' },
             { 0, no_argument, NULL, 0   },
         };
-        cmd = getopt_long (argc, argv, "C:t:p:q:n:Ifqvh",
+        cmd = getopt_long (argc, argv, "C:t:p:q:n:i:Ifqvh",
                            long_options, &option_index);
 
         if (cmd == -1) {  /* all params processed ? */
@@ -299,6 +302,10 @@ int main (int argc, char* argv[])
 
         case 'I':      /* irq */
             attach_flags = (snap_action_flag_t) (SNAP_ACTION_DONE_IRQ | SNAP_ATTACH_IRQ);
+            break;
+
+        case 'i':   /* card */
+            in_dir = std::string (optarg);
             break;
 
         default:
@@ -345,7 +352,7 @@ int main (int argc, char* argv[])
     VERBOSE0 ("--------> hw_version: %#x\n", hw_version);
 
     VERBOSE0 ("--------> HARDWARE RUN\n");
-    vitis_run (dn, timeout, 0);
+    vitis_run (dn, timeout, 0, in_dir);
 
     snap_detach_action (act);
     // Unmap AFU MMIO registers, if previously mapped
