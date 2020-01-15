@@ -297,7 +297,7 @@
         .m_axi_snap_wready     (m_axi_host_mem_wready),
         // AXI write response channel     
         .m_axi_snap_bready     (m_axi_host_mem_bready),  
-        .m_axi_snap_bid        (m_axi_host_mem_bid),
+        .m_axi_snap_bid        ({2'b0, m_axi_host_mem_bid[2:0]}),
         .m_axi_snap_bresp      (m_axi_host_mem_bresp),
         .m_axi_snap_bvalid     (m_axi_host_mem_bvalid),
         // AXI read address channel       
@@ -316,7 +316,7 @@
         .m_axi_snap_arready    (m_axi_host_mem_arready),
         // AXI  ead data channel          
         .m_axi_snap_rready     (m_axi_host_mem_rready), 
-        .m_axi_snap_rid        (m_axi_host_mem_rid),
+        .m_axi_snap_rid        ({2'b0, m_axi_host_mem_rid[2:0]}),
         .m_axi_snap_rdata      (m_axi_host_mem_rdata),
         .m_axi_snap_rresp      (m_axi_host_mem_rresp),
         .m_axi_snap_rlast      (m_axi_host_mem_rlast),
