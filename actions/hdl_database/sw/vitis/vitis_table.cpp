@@ -44,15 +44,11 @@ VitisTable::~VitisTable()
     }
 }
 
-int VitisTable::init_tables(std::string in_dir)
+int VitisTable::init_tables (std::string in_dir)
 {
     int l_nrow = L_MAX_ROW;
     std::cout << "Lineitem " << l_nrow << " rows\n";
 
-    const size_t l_depth = L_MAX_ROW + VEC_LEN * 2 - 1;
-    const size_t table_l_depth = size_t ((sizeof (TPCH_INT) * l_depth + 64 - 1) / 64);
-    const size_t table_x_depth = size_t ((sizeof (TPCH_INT) * l_depth + 64 - 1) / 64);
-    const size_t size_table_l = table_l_depth * 4; // 4 columns
     table_l = aligned_alloc<ap_uint<512> > (size_table_l);
     table_l[0] = get_table_header (table_l_depth, l_nrow);
     table_l[1 * table_l_depth] = 0;
@@ -61,11 +57,8 @@ int VitisTable::init_tables(std::string in_dir)
 
     std::cout << "table_l_depth=" << table_l_depth << std::endl;
 
-    const size_t size_table_x = table_x_depth * 4; // 4 columns
     table_x = aligned_alloc<ap_uint<512> > (size_table_x);
 
-    const size_t table_result_depth = 32;                    // XXX at least enough for burst.
-    const size_t size_table_result = table_result_depth * 8; // XXX 5 column, required by write_out
     table_result_a = aligned_alloc<ap_uint<512> > (size_table_result);
     table_result_a[0] = get_table_header (table_result_depth, 0);
     table_result_a[1 * table_result_depth] = 0;
@@ -133,12 +126,15 @@ int VitisTable::init_tables(std::string in_dir)
 }
 
 template <typename T>
-T* VitisTable::aligned_alloc(std::size_t num) {
+T* VitisTable::aligned_alloc (std::size_t num)
+{
     void* ptr = NULL;
-    if (posix_memalign(&ptr, 4096, num * sizeof(T))) {
+
+    if (posix_memalign (&ptr, 4096, num * sizeof (T))) {
         throw std::bad_alloc();
     }
-    return reinterpret_cast<T*>(ptr);
+
+    return reinterpret_cast<T*> (ptr);
 }
 
 void VitisTable::free_mem (void* a)
@@ -149,35 +145,66 @@ void VitisTable::free_mem (void* a)
 }
 
 template <typename T>
-int VitisTable::load_dat(void* data, const std::string& name, const std::string& dir, size_t n) {
+int VitisTable::load_dat (void* data, const std::string & name, const std::string & dir, size_t n)
+{
     if (!data) {
         return -1;
     }
+
     std::string fn = dir + "/" + name + ".dat";
-    FILE* f = fopen(fn.c_str(), "rb");
+    FILE* f = fopen (fn.c_str(), "rb");
+
     if (!f) {
         std::cerr << "ERROR: " << fn << " cannot be opened for binary read." << std::endl;
     }
-    size_t cnt = fread(data, sizeof(T), n, f);
-    fclose(f);
+
+    size_t cnt = fread (data, sizeof (T), n, f);
+    fclose (f);
+
     if (cnt != n) {
         std::cerr << "ERROR: " << cnt << " entries read from " << fn << ", " << n << " entries required." << std::endl;
         return -1;
     }
+
     return 0;
 }
 
-ap_uint<512> VitisTable::get_table_header(int n512b, int nrow) {
+ap_uint<512> VitisTable::get_table_header (int n512b, int nrow)
+{
     ap_uint<512> th = 0;
-    th.range(31, 0) = nrow;
-    th.range(63, 32) = n512b;
+    th.range (31, 0) = nrow;
+    th.range (63, 32) = n512b;
     return th;
 }
 
-void VitisTable::compload(int* a, int* b, int n) {
+void VitisTable::compload (int* a, int* b, int n)
+{
     for (int i = 0; i < n; i++) {
-        if (a[i] != b[i]) std::cout << i << " :  " << a[i] << " " << b[i] << std::endl;
+        if (a[i] != b[i]) {
+            std::cout << i << " :  " << a[i] << " " << b[i] << std::endl;
+        }
     }
 }
 
+int VitisTable::verify_result()
+{
+    // For Q6 only
+    ap_uint<512> d = table_result_a[1 + table_result_depth * 4];
+
+    long long v = d.range (127, 64).to_int64();
+    printf ("----> FPGA result of TPC-H Q6 scale factor 1: %lld.%lld\n", v / 10000, v % 10000);
+
+    const double expect = 123141078.2283;
+    double result =  (double) (v / 10000 + (double) (0.0001 * (v % 10000)));
+
+    if (result != expect) {
+        printf ("ERROR: TPC-H Q6 SF1 result mismatch!\n");
+        printf ("Expected: %lf\n", expect);
+        printf ("Actual: %lf\n", result);
+        return -1;
+    }
+
+    printf ("PASSED: TPC-H Q6 SF1 result matched!\n");
+    return 0;
+}
 

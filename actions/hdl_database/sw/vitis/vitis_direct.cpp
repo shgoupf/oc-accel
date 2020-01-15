@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#include "boost/chrono.hpp"
+#include <chrono>
+#include <thread>
 #include "vitis_direct.h"
 #include "vitis_table.h"
 
-using namespace boost::chrono;
+using namespace std::chrono;
 
 #define VERBOSE0(fmt, ...) do {         \
         printf(fmt, ## __VA_ARGS__);    \
@@ -160,7 +161,7 @@ void configure_vitis_reg (struct snap_card* h, int reg_id, uint64_t reg_data, in
     return;
 }
 
-void action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
+int action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
 {
     VitisTable* vitis_table_ptr = new VitisTable();
     vitis_table_ptr->init_tables (in_dir);
@@ -190,9 +191,14 @@ void action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
         }
 
         VERBOSE2 ("POLLING STATUS %#x\n", reg_data);
+        std::this_thread::sleep_for (std::chrono::milliseconds(1000));
     } while (1);
 
-    return;
+    if (vitis_table_ptr->verify_result ()) {
+        return -1;
+    }
+
+    return 0;
 }
 
 int vitis_run (struct snap_card* dnc,
@@ -206,8 +212,8 @@ int vitis_run (struct snap_card* dnc,
 
     high_resolution_clock::time_point t_start = high_resolution_clock::now();
 
-    action_vitis (dnc, eng_id, in_dir);
-    rc = action_wait_idle (dnc, timeout);
+    rc = action_vitis (dnc, eng_id, in_dir);
+    action_wait_idle (dnc, timeout);
 
     high_resolution_clock::time_point t_end = high_resolution_clock::now();
 
@@ -215,7 +221,7 @@ int vitis_run (struct snap_card* dnc,
     VERBOSE0 ("Finished run after %lu microseconds (us)\n", (uint64_t) td);
 
     if (0 != rc) {
-        return rc;
+        VERBOSE0 ("ERROR!");
     }
 
     return rc;
@@ -352,7 +358,9 @@ int main (int argc, char* argv[])
     VERBOSE0 ("--------> hw_version: %#x\n", hw_version);
 
     VERBOSE0 ("--------> HARDWARE RUN\n");
-    vitis_run (dn, timeout, 0, in_dir);
+    if (vitis_run (dn, timeout, 0, in_dir)) {
+        goto __fail;
+    }
 
     snap_detach_action (act);
     // Unmap AFU MMIO registers, if previously mapped
