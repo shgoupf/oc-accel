@@ -166,6 +166,8 @@ int action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
     VitisTable* vitis_table_ptr = new VitisTable();
     vitis_table_ptr->init_tables (in_dir);
 
+    high_resolution_clock::time_point t_start = high_resolution_clock::now();
+
     configure_vitis_reg (h, 0, (uint64_t) vitis_table_ptr->get_table_l_ptr(), eng_id);
     configure_vitis_reg (h, 1, (uint64_t) vitis_table_ptr->get_table_x_ptr(), eng_id);
     configure_vitis_reg (h, 2, (uint64_t) vitis_table_ptr->get_table_result_a_ptr(), eng_id);
@@ -191,8 +193,12 @@ int action_vitis (struct snap_card* h, int eng_id, std::string & in_dir)
         }
 
         VERBOSE2 ("POLLING STATUS %#x\n", reg_data);
-        std::this_thread::sleep_for (std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for (std::chrono::microseconds(10));
     } while (1);
+
+    high_resolution_clock::time_point t_end = high_resolution_clock::now();
+    auto td = duration_cast<microseconds> (t_end - t_start).count();
+    VERBOSE0 ("Finished hardware run after %lu microseconds (us)\n", (uint64_t) td);
 
     if (vitis_table_ptr->verify_result ()) {
         return -1;
@@ -213,13 +219,13 @@ int vitis_run (struct snap_card* dnc,
     high_resolution_clock::time_point t_start = high_resolution_clock::now();
 
     rc = action_vitis (dnc, eng_id, in_dir);
-    action_wait_idle (dnc, timeout);
 
     high_resolution_clock::time_point t_end = high_resolution_clock::now();
 
     auto td = duration_cast<microseconds> (t_end - t_start).count();
-    VERBOSE0 ("Finished run after %lu microseconds (us)\n", (uint64_t) td);
+    VERBOSE0 ("Finished total run after %lu microseconds (us)\n", (uint64_t) td);
 
+    action_wait_idle (dnc, timeout);
     if (0 != rc) {
         VERBOSE0 ("ERROR!");
     }
